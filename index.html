@@ -177,7 +177,20 @@ button{-webkit-tap-highlight-color:transparent}
 <div style="font-weight: 700; font-size: 11px; letter-spacing: 0.26em; text-indent: 0.26em; text-transform: uppercase; color: #9c1218">Ответ на сообщение</div>
 <h2 style="margin: 0; font-family: 'Yeseva One', Georgia, serif; font-weight: 400; font-size: 42px; line-height: 1.05">Напишите «буду»</h2>
 <p style="margin: 0; font-size: 18px; line-height: 1.5; text-wrap: pretty">И&nbsp;считайте, что струны моей души максимально затронуты.</p>
-<a href="https://t.me/Anna_Fiil" target="_blank" rel="noopener" style="box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 58px; margin-top: 6px; background: #c9151c; color: #fff6e6; text-decoration: none; font-weight: 700; font-size: 15px; letter-spacing: 0.2em; text-indent: 0.2em; text-transform: uppercase">Буду</a>
+<div id="rsvp" style="width: 100%; margin-top: 6px; display: flex; flex-direction: column; gap: 12px">
+<button type="button" id="rsvp-open" style="box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 58px; border: 0; padding: 0 12px; background: #c9151c; color: #fff6e6; cursor: pointer; font-family: 'Manrope', 'Helvetica Neue', system-ui, sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.2em; text-indent: 0.2em; text-transform: uppercase">Буду</button>
+<form id="rsvp-form" novalidate style="display: none; flex-direction: column; gap: 10px; text-align: left">
+<label for="rsvp-name" style="font-weight: 700; font-size: 15px; line-height: 1.3">Как вас записать?</label>
+<input id="rsvp-name" name="name" type="text" autocomplete="name" maxlength="60" placeholder="Имя и фамилия" style="box-sizing: border-box; width: 100%; min-height: 56px; padding: 0 16px; border: 1px solid #2a1a16; border-radius: 0; background: #ffffff; color: #2a1a16; font-family: 'Manrope', 'Helvetica Neue', system-ui, sans-serif; font-weight: 500; font-size: 18px">
+<div id="rsvp-error" role="alert" style="display: none; font-size: 14px; line-height: 1.4; color: #9c1218"></div>
+<button type="submit" id="rsvp-send" style="box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 58px; border: 0; padding: 0 12px; background: #c9151c; color: #fff6e6; cursor: pointer; font-family: 'Manrope', 'Helvetica Neue', system-ui, sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.2em; text-indent: 0.2em; text-transform: uppercase">Подтверждаю, буду</button>
+</form>
+<div id="rsvp-done" role="status" style="display: none; flex-direction: column; align-items: center; gap: 10px; padding: 22px 16px; border: 1px solid rgba(42, 26, 22, 0.4)">
+<div style="font-family: 'Yeseva One', Georgia, serif; font-size: 28px; line-height: 1.1">Записала!</div>
+<div id="rsvp-done-text" style="font-size: 17px; line-height: 1.45"></div>
+<a href="https://t.me/Anna_Fiil" target="_blank" rel="noopener" style="font-weight: 700; font-size: 14px; line-height: 1.4; color: #9c1218">Написать Филе в Telegram</a>
+</div>
+</div>
 <div style="font-family: 'Caveat', 'Segoe Script', cursive; font-weight: 700; font-size: 40px; line-height: 1; color: #1b2a5c; transform: rotate(-3deg)">Ваша Филя</div>
 <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(42, 26, 22, 0.4); width: 100%; font-weight: 700; font-size: 11px; line-height: 1.6; letter-spacing: 0.22em; text-indent: 0.22em; text-transform: uppercase; color: #6b5a52">2×20 · 18.10.2026 · Butler</div>
 </section>
@@ -225,6 +238,34 @@ button{-webkit-tap-highlight-color:transparent}
   v.addEventListener('play', function () { set({ playing: true, ended: false }); });
   v.addEventListener('pause', function () { set({ playing: false }); });
   v.addEventListener('ended', function () { set({ playing: false, ended: true, flipped: true, cap: false }); });
+  (function () {
+    var FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSexPo13ryNf8cOxrBMdMk2UL7tiqkOFMOg_7egunytmIa43zw/formResponse', FIELD = 'entry.763088116';
+    var open = document.getElementById('rsvp-open'), form = document.getElementById('rsvp-form'), input = document.getElementById('rsvp-name');
+    var send = document.getElementById('rsvp-send'), err = document.getElementById('rsvp-error'), done = document.getElementById('rsvp-done'), doneText = document.getElementById('rsvp-done-text');
+    function showDone(name) {
+      open.style.display = 'none'; form.style.display = 'none'; done.style.display = 'flex';
+      doneText.textContent = name + ', жду вас 18 октября в 13:00.';
+    }
+    function showError(text) { err.textContent = text; err.style.display = 'block'; }
+    var saved = null;
+    try { saved = localStorage.getItem('rsvp-name'); } catch (e) {}
+    if (saved) showDone(saved);
+    open.addEventListener('click', function () { open.style.display = 'none'; form.style.display = 'flex'; input.focus(); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = input.value.replace(/\s+/g, ' ').trim();
+      if (name.length < 2) { showError('Напишите имя, чтобы я знала, кого ждать.'); input.focus(); return; }
+      err.style.display = 'none'; send.disabled = true; send.textContent = 'Записываю…';
+      var body = new URLSearchParams(); body.append(FIELD, name);
+      fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body: body }).then(function () {
+        try { localStorage.setItem('rsvp-name', name); } catch (e2) {}
+        showDone(name);
+      }, function () {
+        send.disabled = false; send.textContent = 'Подтверждаю, буду';
+        showError('Не получилось записать. Проверьте интернет и нажмите ещё раз или напишите мне в Telegram.');
+      });
+    });
+  })();
   v.muted = true; v.defaultMuted = true;
   render();
   tryPlay();
